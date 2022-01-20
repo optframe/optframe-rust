@@ -43,6 +43,21 @@ starting from 5.x.
 After that, typical semantic versioning may apply (for features and bugs).
 However, Major version is expected to be in sync with OptFrame Project C++.
 
+### Progress and Timeline
+
+- 20/01/2022: first draft is released
+
+#### Missing features
+
+- Next step is to port NS, NSFind, NSSeq and NSEnum
+- Check for coroutine alternatives in Rust
+- Check for borrowing strategies when nesting inside methods (for XESolution)
+- Check for Disjunctions in concepts for Evaluation and MultiEvaluation to coexist
+- Port metaheuristics...
+- Port Check Module
+- much more!
+
+
 ## Acknowledgements
 
 I appreciate all advices from friends and students, specially Eduardo and Victor, for motivating me to create this OptFrame port as quickly as possible.
