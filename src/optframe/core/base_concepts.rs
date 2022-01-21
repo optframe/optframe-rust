@@ -8,12 +8,10 @@ use num_traits::real::Real;
 
 //#[derive(Copy, Clone)]
 // TODO: REQUIRES Copy!
-pub trait XRepresentation {
-}
+pub trait XRepresentation {}
 
 // TODO: REQUIRES XRepresentation
-pub trait XSolution {
-}
+pub trait XSolution {}
 
 pub trait XEvaluation<R: Real = f64> {
     fn evaluation(&self) -> R;
@@ -29,4 +27,3 @@ pub trait XESolution<XS: XSolution, XEv: XEvaluation> {
     fn first_mut(&mut self) -> &mut XS;
     fn second_mut(&mut self) -> &mut XEv;
 }
-

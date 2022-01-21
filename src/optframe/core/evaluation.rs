@@ -3,30 +3,26 @@
 use num_traits::real::Real;
 use std::fmt;
 
-pub use super::base_concepts::{XSolution, XEvaluation, XESolution};
+pub use super::base_concepts::{XESolution, XEvaluation, XSolution};
 
 pub struct Evaluation<R: Real = f64> {
     pub objVal: R,
-    pub outdated : bool,
+    pub outdated: bool,
 }
 
 impl<R: Real> XEvaluation<R> for Evaluation<R> {
-    fn evaluation(&self) -> R
-    {
+    fn evaluation(&self) -> R {
         self.objVal
     }
-    fn setObjFunction(&mut self, objVal: R) -> ()
-    {
+    fn setObjFunction(&mut self, objVal: R) -> () {
         self.objVal = objVal
     }
-    // ======== variable 'outdated' ======== 
-    fn isOutdated(&self) -> bool
-    {
+    // ======== variable 'outdated' ========
+    fn isOutdated(&self) -> bool {
         return self.outdated;
     }
     //
-    fn setOutdated(&mut self, outdated: bool) -> ()
-    {
+    fn setOutdated(&mut self, outdated: bool) -> () {
         self.outdated = outdated;
     }
 }

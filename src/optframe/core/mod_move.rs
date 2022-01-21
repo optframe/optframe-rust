@@ -1,4 +1,3 @@
-
 //mod base_concepts;
 
 // module 'move' is named 'mod_move'
@@ -10,42 +9,42 @@ use std::fmt;
 use std::fmt::Display;
 */
 
-pub use super::base_concepts::{XSolution, XEvaluation, XESolution};
+pub use super::base_concepts::{XESolution, XEvaluation, XSolution};
 
 pub trait Move<XS, XEv, XES: XESolution<XS, XEv>>
-   where XS: XSolution, XEv: XEvaluation
-{//, XES: XESolution<XS, XEv>> {
+where
+    XS: XSolution,
+    XEv: XEvaluation,
+{
+    //, XES: XESolution<XS, XEv>> {
 
     //
     fn apply(&self, se: &mut XES) -> Box<dyn Move<XS, XEv, XES>>;
     //
-    fn canBeApplied(&self, _se: &XES) -> bool
-    {
+    fn canBeApplied(&self, _se: &XES) -> bool {
         // default: all can be applied
-        return true
+        return true;
     }
     //
     fn applyUpdate(&self, se: &mut XES) -> Box<dyn Move<XS, XEv, XES>> {
+        let e: &mut XEv = &mut se.second_mut();
+        // ====== from OptFrame (C++) ======
+        // boolean 'outdated' indicates that Evaluation needs update (after Solution change)
+        // note that even if the reverse move is applied, the Evaluation will continue with
+        // the outdated status set to true. So more efficient approaches may rewrite this
+        // method, or use  efficient re-evaluation by means of the 'cost' method.
+        e.setOutdated(true);
+        // apply the move to R and ADS, saving the reverse (or undo) move
+        let rev = self.apply(se); // Box<dyn Move<XS, XEv, XES>>
+                                  // update neighborhood local optimum status TODO:deprecated
+                                  //updateNeighStatus(se);
 
-      let e : &mut XEv = &mut se.second_mut();
-      // ====== from OptFrame (C++) ====== 
-      // boolean 'outdated' indicates that Evaluation needs update (after Solution change)
-      // note that even if the reverse move is applied, the Evaluation will continue with
-      // the outdated status set to true. So more efficient approaches may rewrite this
-      // method, or use  efficient re-evaluation by means of the 'cost' method.
-      e.setOutdated(true);
-      // apply the move to R and ADS, saving the reverse (or undo) move
-      let rev = self.apply(se); // Box<dyn Move<XS, XEv, XES>>
-      // update neighborhood local optimum status TODO:deprecated
-      //updateNeighStatus(se);
-
-      // return reverse move (or null)
-      return rev;
+        // return reverse move (or null)
+        return rev;
     }
     //
-    fn cost(&self, _se: &XES, _allowEstimated: bool) -> Option<XEv> 
-    {
-       return None;
+    fn cost(&self, _se: &XES, _allowEstimated: bool) -> Option<XEv> {
+        return None;
     }
 
     // ======= from Component =======
