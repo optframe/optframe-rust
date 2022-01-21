@@ -8,11 +8,14 @@ pub struct Evaluation<R: Real = f64> {
     pub outdated: bool,
 }
 
-impl<R: Real> XEvaluation<R> for Evaluation<R> {
+impl<R: Real> XEvaluation for Evaluation<R> {
+    // types
+    type ObjType = R;
+    // methods
     fn evaluation(&self) -> R {
         self.obj_val
     }
-    fn set_obj_function(&mut self, obj_val: R) {
+    fn set_obj_val(&mut self, obj_val: R) {
         self.obj_val = obj_val
     }
     // ======== variable 'outdated' ========

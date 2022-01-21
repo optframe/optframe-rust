@@ -9,23 +9,20 @@ use std::fmt::Display;
 
 pub use super::base_concepts::{XESolution, XEvaluation, XSolution};
 
-pub trait Move<XS, XEv, XES: XESolution<XS, XEv>>
-where
-    XS: XSolution,
-    XEv: XEvaluation,
-{
-    //, XES: XESolution<XS, XEv>> {
-
+pub trait Move<XES: XESolution> {
+    // cannot do some type shortcut here...
+    //type XS; // XES::FirstType;
+    //type XEv; // XES::SecondType
     //
-    fn apply(&self, se: &mut XES) -> Box<dyn Move<XS, XEv, XES>>;
+    fn apply(&self, se: &mut XES) -> Box<dyn Move<XES>>;
     //
     fn can_be_applied(&self, _se: &XES) -> bool {
         // default: all can be applied
         true
     }
     //
-    fn apply_update(&self, se: &mut XES) -> Box<dyn Move<XS, XEv, XES>> {
-        let e: &mut XEv = se.second_mut();
+    fn apply_update(&self, se: &mut XES) -> Box<dyn Move<XES>> {
+        let e: &mut XES::SecondType = se.second_mut();
         // ====== from OptFrame (C++) ======
         // boolean 'outdated' indicates that Evaluation needs update (after Solution change)
         // note that even if the reverse move is applied, the Evaluation will continue with
@@ -41,7 +38,7 @@ where
         self.apply(se)
     }
     //
-    fn cost(&self, _se: &XES, _allow_estimated: bool) -> Option<XEv> {
+    fn cost(&self, _se: &XES, _allow_estimated: bool) -> Option<XES::SecondType> {
         None
     }
 

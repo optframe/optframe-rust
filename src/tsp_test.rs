@@ -21,7 +21,11 @@ impl XSolution for Vec<i32> {
     // nothing to do! must have something to do with Copy trait!!!
 }
 
-impl XESolution<Vec<i32>, Evaluation> for ESolutionTSP {
+impl XESolution for ESolutionTSP {
+    // types
+    type FirstType = Vec<i32>;
+    type SecondType = Evaluation;
+    // methods
     fn first(&self) -> &Vec<i32> {
         &self.first_value
     }
@@ -89,8 +93,8 @@ pub struct MoveSwap {
 
 // ------------------------
 
-impl Move<Vec<i32>, Evaluation, ESolutionTSP> for MoveSwap {
-    fn apply(&self, se: &mut ESolutionTSP) -> Box<dyn Move<Vec<i32>, Evaluation, ESolutionTSP>> {
+impl Move<ESolutionTSP> for MoveSwap {
+    fn apply(&self, se: &mut ESolutionTSP) -> Box<dyn Move<ESolutionTSP>> {
         println!("apply from MoveSwap {} {}", self.i, self.j);
         //println!("problem is:\n {}", self.pTSP);
 
@@ -112,10 +116,7 @@ impl Move<Vec<i32>, Evaluation, ESolutionTSP> for MoveSwap {
     }
     //
 
-    fn apply_update(
-        &self,
-        se: &mut ESolutionTSP,
-    ) -> Box<dyn Move<Vec<i32>, Evaluation, ESolutionTSP>> {
+    fn apply_update(&self, se: &mut ESolutionTSP) -> Box<dyn Move<ESolutionTSP>> {
         // input cannot be outdated
         assert!(!se.second().is_outdated());
         let s = &mut se.first();
@@ -138,7 +139,7 @@ impl Move<Vec<i32>, Evaluation, ESolutionTSP> for MoveSwap {
         let rev = self.apply(se);
         //
         let new_obj_val = se.second().evaluation() + diff;
-        se.second_mut().set_obj_function(new_obj_val);
+        se.second_mut().set_obj_val(new_obj_val);
         //se.second().setObjFunction(se.second().evaluation() + diff);
         rev
     }
@@ -177,7 +178,7 @@ impl Move<Vec<i32>, Evaluation, ESolutionTSP> for MoveSwap {
 
 impl fmt::Display for MoveSwap {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", <Self as Move<_, _, _>>::to_string(self))
+        write!(f, "{}", <Self as Move<_>>::to_string(self))
     }
 }
 
@@ -187,11 +188,7 @@ impl fmt::Display for MoveSwap {
 // ------------------------
 
 #[allow(dead_code)]
-fn make_move_swap(
-    p_tsp: Rc<TSPProblemContext>,
-    i: usize,
-    j: usize,
-) -> Box<dyn Move<Vec<i32>, Evaluation, ESolutionTSP>> {
+fn make_move_swap(p_tsp: Rc<TSPProblemContext>, i: usize, j: usize) -> Box<dyn Move<ESolutionTSP>> {
     Box::new(MoveSwap { p_tsp, i, j })
 }
 
@@ -278,11 +275,12 @@ fn main() {
                 outdated: false,
             }
         },
+        //phantom_xes: PhantomData,
         phantom_xs: PhantomData,
         phantom_xev: PhantomData,
     };
 
-    let ev = fev.evaluate(&sol);
+    let ev: Evaluation = fev.evaluate(&sol);
 
     println!("evaluation: {:?}", ev.evaluation());
 

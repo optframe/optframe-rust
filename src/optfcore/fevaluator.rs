@@ -11,18 +11,23 @@ enum MinOrMax
 }
 */
 
+//pub struct FEvaluator<F, ObjType = f64>
+//<XES: XESolution, F>
 pub struct FEvaluator<XS: XSolution, XEv: XEvaluation, F>
 //, XES: XESolution<XS, XEv>, F>
 where
     F: Fn(&XS) -> XEv,
+    //F: Fn(&dyn XSolution) -> dyn XEvaluation<ObjType = ObjType>,
 {
     pub f_evaluate: F,
+    //pub phantom_xes: PhantomData<XES>,
     pub phantom_xs: PhantomData<XS>,
     pub phantom_xev: PhantomData<XEv>,
     //phantomXES: PhantomData<XES>, // TODO: remove?
 }
 
 impl<XS: XSolution, XEv: XEvaluation, F> Evaluator<XS, XEv> for FEvaluator<XS, XEv, F>
+//impl<XS: XSolution, XEv: XEvaluation, F> Evaluator<XS, XEv> for FEvaluator<XS, XEv, F>
 where
     F: Fn(&XS) -> XEv,
 {
@@ -31,9 +36,11 @@ where
     }
 }
 
+/*
 impl<XS: XSolution, XEv: XEvaluation, F> FEvaluator<XS, XEv, F>
 //FEvaluator<XS, XEv, XES, F>
 where
     F: Fn(&XS) -> XEv
 {
 }
+*/
