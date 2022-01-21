@@ -1,32 +1,26 @@
-#![allow(non_snake_case)]
-
 use num_traits::real::Real;
 use std::fmt;
 
-pub use super::base_concepts::{XSolution, XEvaluation, XESolution};
+pub use super::base_concepts::{XESolution, XEvaluation, XSolution};
 
 pub struct Evaluation<R: Real = f64> {
-    pub objVal: R,
-    pub outdated : bool,
+    pub obj_val: R,
+    pub outdated: bool,
 }
 
 impl<R: Real> XEvaluation<R> for Evaluation<R> {
-    fn evaluation(&self) -> R
-    {
-        self.objVal
+    fn evaluation(&self) -> R {
+        self.obj_val
     }
-    fn setObjFunction(&mut self, objVal: R) -> ()
-    {
-        self.objVal = objVal
+    fn set_obj_function(&mut self, obj_val: R) {
+        self.obj_val = obj_val
     }
-    // ======== variable 'outdated' ======== 
-    fn isOutdated(&self) -> bool
-    {
-        return self.outdated;
+    // ======== variable 'outdated' ========
+    fn is_outdated(&self) -> bool {
+        self.outdated
     }
     //
-    fn setOutdated(&mut self, outdated: bool) -> ()
-    {
+    fn set_outdated(&mut self, outdated: bool) {
         self.outdated = outdated;
     }
 }

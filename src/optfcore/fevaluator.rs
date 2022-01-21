@@ -1,6 +1,5 @@
-
-pub use super::optframe::core::base_concepts::{XSolution, XEvaluation, XESolution};
-pub use super::optframe::core::evaluator::{Evaluator};
+pub use super::optframe::core::base_concepts::{XESolution, XEvaluation, XSolution};
+pub use super::optframe::core::evaluator::Evaluator;
 
 use std::marker::PhantomData;
 
@@ -12,27 +11,29 @@ enum MinOrMax
 }
 */
 
-pub struct FEvaluator<XS: XSolution, XEv: XEvaluation, F>//, XES: XESolution<XS, XEv>, F>
- where  F: Fn(&XS) -> XEv
+pub struct FEvaluator<XS: XSolution, XEv: XEvaluation, F>
+//, XES: XESolution<XS, XEv>, F>
+where
+    F: Fn(&XS) -> XEv,
 {
-    pub fEvaluate: F,
-    pub phantomXS: PhantomData<XS>,
-    pub phantomXEv: PhantomData<XEv>,
+    pub f_evaluate: F,
+    pub phantom_xs: PhantomData<XS>,
+    pub phantom_xev: PhantomData<XEv>,
     //phantomXES: PhantomData<XES>, // TODO: remove?
 }
 
-impl<XS: XSolution, XEv: XEvaluation, F> Evaluator<XS, XEv>  //Evaluator<XS, XEv, XES> 
-       for FEvaluator<XS, XEv, F> 
-where  F: Fn(&XS) -> XEv
+impl<XS: XSolution, XEv: XEvaluation, F> Evaluator<XS, XEv> for FEvaluator<XS, XEv, F>
+where
+    F: Fn(&XS) -> XEv,
 {
-    fn evaluate(&self, s: &XS) -> XEv
-    {
-        return (self.fEvaluate)(s)
+    fn evaluate(&self, s: &XS) -> XEv {
+        (self.f_evaluate)(s)
     }
 }
 
-impl<XS: XSolution, XEv: XEvaluation, F> FEvaluator<XS, XEv, F>  //FEvaluator<XS, XEv, XES, F> 
-where  F: Fn(&XS) -> XEv
+impl<XS: XSolution, XEv: XEvaluation, F> FEvaluator<XS, XEv, F>
+//FEvaluator<XS, XEv, XES, F>
+where
+    F: Fn(&XS) -> XEv
 {
-
 }

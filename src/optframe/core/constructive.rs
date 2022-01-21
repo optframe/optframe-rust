@@ -1,10 +1,7 @@
-
 //mod base_concepts;
 
-#![allow(non_snake_case)]
-
-pub use super::base_concepts::{XSolution, XEvaluation, XESolution};
+pub use super::base_concepts::{XESolution, XEvaluation, XSolution};
 
 pub trait Constructive<XS: XSolution> {
-    fn generateSolution(&self) -> XS;
+    fn generate_solution(&self) -> XS;
 }

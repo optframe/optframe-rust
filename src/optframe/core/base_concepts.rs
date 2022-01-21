@@ -8,19 +8,17 @@ use num_traits::real::Real;
 
 //#[derive(Copy, Clone)]
 // TODO: REQUIRES Copy!
-pub trait XRepresentation {
-}
+pub trait XRepresentation {}
 
 // TODO: REQUIRES XRepresentation
-pub trait XSolution {
-}
+pub trait XSolution {}
 
 pub trait XEvaluation<R: Real = f64> {
     fn evaluation(&self) -> R;
-    fn setObjFunction(&mut self, objVal: R) -> ();
+    fn set_obj_function(&mut self, obj_val: R);
     // variable 'outdated'
-    fn isOutdated(&self) -> bool;
-    fn setOutdated(&mut self, outdated: bool) -> ();
+    fn is_outdated(&self) -> bool;
+    fn set_outdated(&mut self, outdated: bool);
 }
 
 pub trait XESolution<XS: XSolution, XEv: XEvaluation> {
@@ -29,4 +27,3 @@ pub trait XESolution<XS: XSolution, XEv: XEvaluation> {
     fn first_mut(&mut self) -> &mut XS;
     fn second_mut(&mut self) -> &mut XEv;
 }
-
