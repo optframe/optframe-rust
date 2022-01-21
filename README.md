@@ -60,7 +60,7 @@ However, Major version is expected to be in sync with OptFrame Project C++.
 
 ## Acknowledgements
 
-I appreciate all advices from friends and students, specially Eduardo and Victor, for motivating me to create this OptFrame port as quickly as possible.
+I appreciate all advices from friends and students, specially Eduardo (from [dbofmmbt/optimum](https://github.com/dbofmmbt/optimum)) and Victor, for motivating me to create this OptFrame port as quickly as possible.
 
 ## License
 
