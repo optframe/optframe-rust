@@ -1,4 +1,3 @@
-#![allow(non_snake_case)]
 #![doc = include_str!("../README.md")]
 
 mod optfcore;
@@ -11,4 +10,4 @@ pub use crate::optframe::core;
 pub use crate::optframe::heuristics;
 
 #[cfg(test)]
-mod TSP_test;
+mod tsp_test;

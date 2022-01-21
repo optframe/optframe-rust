@@ -82,7 +82,7 @@ impl fmt::Display for TSPProblemContext {
 // ------------------------
 
 pub struct MoveSwap {
-    pub pTSP: Rc<TSPProblemContext>,
+    pub p_tsp: Rc<TSPProblemContext>,
     pub i: usize,
     pub j: usize,
 }
@@ -101,83 +101,83 @@ impl Move<Vec<i32>, Evaluation, ESolutionTSP> for MoveSwap {
         // reverse move
 
         Box::new(MoveSwap {
-            pTSP: self.pTSP.clone(),
+            p_tsp: self.p_tsp.clone(),
             i: self.j,
             j: self.i,
         })
     }
 
-    fn canBeApplied(&self, _se: &ESolutionTSP) -> bool {
+    fn can_be_applied(&self, _se: &ESolutionTSP) -> bool {
         (i32::abs((self.i - self.j) as i32) >= 2) && (self.i >= 1) && (self.j >= 1)
     }
     //
 
-    fn applyUpdate(
+    fn apply_update(
         &self,
         se: &mut ESolutionTSP,
     ) -> Box<dyn Move<Vec<i32>, Evaluation, ESolutionTSP>> {
         // input cannot be outdated
-        assert!(!se.second().isOutdated());
+        assert!(!se.second().is_outdated());
         let s = &mut se.first();
         //
         let i: usize = self.i;
         let j: usize = self.j;
-        let pTSP = &self.pTSP;
+        let p_tsp = &self.p_tsp;
         //
-        let mut diff: f64 = (-pTSP.dist[[s[(i - 1)] as usize, s[i] as usize]]
-            - pTSP.dist[[s[i] as usize, s[(i + 1) % pTSP.n] as usize]]
-            - pTSP.dist[[s[j - 1] as usize, s[j] as usize]]
-            - pTSP.dist[[s[j] as usize, s[(j + 1) % pTSP.n] as usize]])
+        let mut diff: f64 = (-p_tsp.dist[[s[(i - 1)] as usize, s[i] as usize]]
+            - p_tsp.dist[[s[i] as usize, s[(i + 1) % p_tsp.n] as usize]]
+            - p_tsp.dist[[s[j - 1] as usize, s[j] as usize]]
+            - p_tsp.dist[[s[j] as usize, s[(j + 1) % p_tsp.n] as usize]])
             as f64;
         //
-        diff += (pTSP.dist[[s[(i - 1)] as usize, s[j] as usize]]
-            + pTSP.dist[[s[j] as usize, s[(i + 1) % pTSP.n] as usize]]
-            + pTSP.dist[[s[j - 1] as usize, s[i] as usize]]
-            + pTSP.dist[[s[i] as usize, s[(j + 1) % pTSP.n] as usize]]) as f64;
+        diff += (p_tsp.dist[[s[(i - 1)] as usize, s[j] as usize]]
+            + p_tsp.dist[[s[j] as usize, s[(i + 1) % p_tsp.n] as usize]]
+            + p_tsp.dist[[s[j - 1] as usize, s[i] as usize]]
+            + p_tsp.dist[[s[i] as usize, s[(j + 1) % p_tsp.n] as usize]]) as f64;
         // solution swap
         let rev = self.apply(se);
         //
-        let newObjVal = se.second().evaluation() + diff;
-        se.second_mut().setObjFunction(newObjVal);
+        let new_obj_val = se.second().evaluation() + diff;
+        se.second_mut().set_obj_function(new_obj_val);
         //se.second().setObjFunction(se.second().evaluation() + diff);
         rev
     }
     //
 
     //fn cost(const ESolutionTSP& se, bool allowEstimated) -> op<Evaluation<int>>
-    fn cost(&self, se: &ESolutionTSP, _allowEstimated: bool) -> Option<Evaluation> {
-        assert!(!se.second().isOutdated());
+    fn cost(&self, se: &ESolutionTSP, _allow_estimated: bool) -> Option<Evaluation> {
+        assert!(!se.second().is_outdated());
         let s = &se.first();
         //
         let i: usize = self.i;
         let j: usize = self.j;
-        let pTSP = &self.pTSP;
+        let p_tsp = &self.p_tsp;
         //
-        let mut diff: f64 = (-pTSP.dist[[s[(i - 1)] as usize, s[i] as usize]]
-            - pTSP.dist[[s[i] as usize, s[(i + 1) % pTSP.n] as usize]]
-            - pTSP.dist[[s[j - 1] as usize, s[j] as usize]]
-            - pTSP.dist[[s[j] as usize, s[(j + 1) % pTSP.n] as usize]])
+        let mut diff: f64 = (-p_tsp.dist[[s[(i - 1)] as usize, s[i] as usize]]
+            - p_tsp.dist[[s[i] as usize, s[(i + 1) % p_tsp.n] as usize]]
+            - p_tsp.dist[[s[j - 1] as usize, s[j] as usize]]
+            - p_tsp.dist[[s[j] as usize, s[(j + 1) % p_tsp.n] as usize]])
             as f64;
         //
-        diff += (pTSP.dist[[s[(i - 1)] as usize, s[j] as usize]]
-            + pTSP.dist[[s[j] as usize, s[(i + 1) % pTSP.n] as usize]]
-            + pTSP.dist[[s[j - 1] as usize, s[i] as usize]]
-            + pTSP.dist[[s[i] as usize, s[(j + 1) % pTSP.n] as usize]]) as f64;
+        diff += (p_tsp.dist[[s[(i - 1)] as usize, s[j] as usize]]
+            + p_tsp.dist[[s[j] as usize, s[(i + 1) % p_tsp.n] as usize]]
+            + p_tsp.dist[[s[j - 1] as usize, s[i] as usize]]
+            + p_tsp.dist[[s[i] as usize, s[(j + 1) % p_tsp.n] as usize]]) as f64;
         //
         Some(Evaluation {
-            objVal: diff,
+            obj_val: diff,
             outdated: false,
         })
     }
 
-    fn toString(&self) -> String {
+    fn to_string(&self) -> String {
         format!("MoveSwap i={} j={}", self.i, self.j)
     }
 }
 
 impl fmt::Display for MoveSwap {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.toString())
+        write!(f, "{}", <Self as Move<_, _, _>>::to_string(self))
     }
 }
 
@@ -187,12 +187,12 @@ impl fmt::Display for MoveSwap {
 // ------------------------
 
 #[allow(dead_code)]
-fn makeMoveSwap(
-    pTSP: Rc<TSPProblemContext>,
+fn make_move_swap(
+    p_tsp: Rc<TSPProblemContext>,
     i: usize,
     j: usize,
 ) -> Box<dyn Move<Vec<i32>, Evaluation, ESolutionTSP>> {
-    Box::new(MoveSwap { pTSP, i, j })
+    Box::new(MoveSwap { p_tsp, i, j })
 }
 
 // ------------------------
@@ -225,7 +225,7 @@ fn main() {
     // will not use local variable '_pTSP' (only P_TSP),
     // otherwise 'frandom' becomes closure, not lambda
     // =================================================
-    let pTSP = TSPProblemContext {
+    let p_tsp = TSPProblemContext {
         n: 5,
         dist: Array2::<i32>::ones((5, 5)), //dist: [[0 as i32; 5].to_vec() ; 5].to_vec()
     };
@@ -246,7 +246,7 @@ fn main() {
 
     let fc = FConstructive {
         func: || -> Vec<i32> {
-            let _n: usize = pTSP.n;
+            let _n: usize = p_tsp.n;
             //let v : Vec<i32> = Vec::new();
             let mut v: Vec<i32> = vec![0; _n];
             let mut i: usize = 0;
@@ -259,27 +259,27 @@ fn main() {
         },
     };
 
-    let sol = fc.generateSolution();
+    let sol = fc.generate_solution();
 
     println!("solution: {:?}", sol);
-    println!("distances:\n {:?}", pTSP.dist);
+    println!("distances:\n {:?}", p_tsp.dist);
 
     let fev = FEvaluator {
-        fEvaluate: |s: &Vec<i32>| -> Evaluation {
+        f_evaluate: |s: &Vec<i32>| -> Evaluation {
             let mut f: f64 = 0.0;
             let mut i: usize = 0;
-            while i < (pTSP.n - 1) {
-                f += pTSP.dist[[s[i] as usize, s[i + 1] as usize]] as f64;
+            while i < (p_tsp.n - 1) {
+                f += p_tsp.dist[[s[i] as usize, s[i + 1] as usize]] as f64;
                 i += 1;
             }
-            f += pTSP.dist[[s[pTSP.n - 1] as usize, s[0] as usize]] as f64;
+            f += p_tsp.dist[[s[p_tsp.n - 1] as usize, s[0] as usize]] as f64;
             Evaluation {
-                objVal: f,
+                obj_val: f,
                 outdated: false,
             }
         },
-        phantomXS: PhantomData,
-        phantomXEv: PhantomData,
+        phantom_xs: PhantomData,
+        phantom_xev: PhantomData,
     };
 
     let ev = fev.evaluate(&sol);
@@ -290,10 +290,10 @@ fn main() {
     // tests with moves
     // ======================
 
-    let my_pTSP: Rc<TSPProblemContext> = Rc::new(pTSP);
+    let my_p_tsp: Rc<TSPProblemContext> = Rc::new(p_tsp);
     //
     let mv1 = MoveSwap {
-        pTSP: my_pTSP,
+        p_tsp: my_p_tsp,
         i: 0,
         j: 1,
     };
@@ -307,7 +307,7 @@ fn main() {
 
     let mv2 = mv1.apply(&mut esol);
 
-    println!("mv2: {}", mv2.toString());
+    println!("mv2: {}", mv2.to_string());
 
     let _mv3 = mv2.apply(&mut esol);
 

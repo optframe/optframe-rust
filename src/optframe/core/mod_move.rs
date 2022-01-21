@@ -2,8 +2,6 @@
 
 // module 'move' is named 'mod_move'
 
-#![allow(non_snake_case)]
-
 /*
 use std::fmt;
 use std::fmt::Display;
@@ -21,19 +19,19 @@ where
     //
     fn apply(&self, se: &mut XES) -> Box<dyn Move<XS, XEv, XES>>;
     //
-    fn canBeApplied(&self, _se: &XES) -> bool {
+    fn can_be_applied(&self, _se: &XES) -> bool {
         // default: all can be applied
         true
     }
     //
-    fn applyUpdate(&self, se: &mut XES) -> Box<dyn Move<XS, XEv, XES>> {
+    fn apply_update(&self, se: &mut XES) -> Box<dyn Move<XS, XEv, XES>> {
         let e: &mut XEv = se.second_mut();
         // ====== from OptFrame (C++) ======
         // boolean 'outdated' indicates that Evaluation needs update (after Solution change)
         // note that even if the reverse move is applied, the Evaluation will continue with
         // the outdated status set to true. So more efficient approaches may rewrite this
         // method, or use  efficient re-evaluation by means of the 'cost' method.
-        e.setOutdated(true);
+        e.set_outdated(true);
         // apply the move to R and ADS, saving the reverse (or undo) move
         // Box<dyn Move<XS, XEv, XES>>
         // update neighborhood local optimum status TODO:deprecated
@@ -43,12 +41,12 @@ where
         self.apply(se)
     }
     //
-    fn cost(&self, _se: &XES, _allowEstimated: bool) -> Option<XEv> {
+    fn cost(&self, _se: &XES, _allow_estimated: bool) -> Option<XEv> {
         None
     }
 
     // ======= from Component =======
-    fn toString(&self) -> String;
+    fn to_string(&self) -> String;
 }
 
 /*

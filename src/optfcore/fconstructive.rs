@@ -16,7 +16,7 @@ impl<XS: XSolution, F> Constructive<XS> for FConstructive<XS, F>
 where
     F: Fn() -> XS,
 {
-    fn generateSolution(&self) -> XS {
+    fn generate_solution(&self) -> XS {
         (self.func)()
     }
 }

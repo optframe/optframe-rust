@@ -16,9 +16,9 @@ pub struct FEvaluator<XS: XSolution, XEv: XEvaluation, F>
 where
     F: Fn(&XS) -> XEv,
 {
-    pub fEvaluate: F,
-    pub phantomXS: PhantomData<XS>,
-    pub phantomXEv: PhantomData<XEv>,
+    pub f_evaluate: F,
+    pub phantom_xs: PhantomData<XS>,
+    pub phantom_xev: PhantomData<XEv>,
     //phantomXES: PhantomData<XES>, // TODO: remove?
 }
 
@@ -27,7 +27,7 @@ where
     F: Fn(&XS) -> XEv,
 {
     fn evaluate(&self, s: &XS) -> XEv {
-        (self.fEvaluate)(s)
+        (self.f_evaluate)(s)
     }
 }
 
