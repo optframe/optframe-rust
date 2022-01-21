@@ -9,13 +9,21 @@ use crate::{
         mod_move::Move,
         Constructive, Evaluation, Evaluator,
     },
-    FConstructive, FEvaluator,
+    FConstructive, FEvaluator, FNS,
 };
+
+use crate::optframe::core::ns::NS;
+
+// =======================================
 
 pub struct ESolutionTSP {
     pub first_value: Vec<i32>,
     pub second_value: Evaluation,
 }
+
+//impl XRepresentation for Vec<i32> {
+// nothing to do! must have something to do with Copy trait!!!
+//}
 
 impl XSolution for Vec<i32> {
     // nothing to do! must have something to do with Copy trait!!!
@@ -187,7 +195,7 @@ impl fmt::Display for MoveSwap {
 // (not necessary, but part of OptFrame Quickstart tutorial)
 // ------------------------
 
-#[allow(dead_code)]
+//#[allow(dead_code)]
 fn make_move_swap(p_tsp: Rc<TSPProblemContext>, i: usize, j: usize) -> Box<dyn Move<ESolutionTSP>> {
     Box::new(MoveSwap { p_tsp, i, j })
 }
@@ -291,7 +299,7 @@ fn main() {
     let my_p_tsp: Rc<TSPProblemContext> = Rc::new(p_tsp);
     //
     let mv1 = MoveSwap {
-        p_tsp: my_p_tsp,
+        p_tsp: my_p_tsp.clone(),
         i: 0,
         j: 1,
     };
@@ -310,6 +318,22 @@ fn main() {
     let _mv3 = mv2.apply(&mut esol);
 
     //print!("mv2: {}\n", *mv2);
+
+    let fns_swap = FNS {
+        f_random: |_se: &ESolutionTSP| -> Box<dyn Move<ESolutionTSP>> {
+            let my_p_tsp1 = &my_p_tsp;
+            let mut i: usize = rand::random::<usize>() % my_p_tsp1.n;
+            let mut j = i;
+            while j <= i {
+                i = rand::random::<usize>() % my_p_tsp1.n;
+                j = rand::random::<usize>() % my_p_tsp1.n;
+            }
+            return make_move_swap(my_p_tsp1.clone(), i, j);
+        },
+        phantom_xes: PhantomData,
+    };
+
+    let _mv4 = fns_swap.random_move(&esol);
 
     //let f2 : dyn Fn()->Vec<i32> = frandom;
 

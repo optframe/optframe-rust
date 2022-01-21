@@ -5,6 +5,7 @@ mod optframe;
 
 pub use optfcore::fconstructive::FConstructive;
 pub use optfcore::fevaluator::FEvaluator;
+pub use optfcore::fns::FNS;
 
 pub use crate::optframe::core;
 pub use crate::optframe::heuristics;

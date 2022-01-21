@@ -1,7 +1,7 @@
 use num_traits::real::Real;
 use std::fmt;
 
-pub use super::base_concepts::{XESolution, XEvaluation, XSolution};
+pub use super::base_concepts::{XESolution, XEvaluation, XRepresentation, XSolution};
 
 pub struct Evaluation<R: Real = f64> {
     pub obj_val: R,

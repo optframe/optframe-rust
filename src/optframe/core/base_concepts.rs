@@ -8,9 +8,10 @@ use num_traits::real::Real;
 
 //#[derive(Copy, Clone)]
 // TODO: REQUIRES Copy!
-pub trait XRepresentation {}
+pub trait XRepresentation {} //: Copy {}
 
 // TODO: REQUIRES XRepresentation
+//pub trait XSolution<T: XRepresentation = Self>: XRepresentation {}
 pub trait XSolution {}
 
 // keep XEvaluation clean of template arguments (only leave in Evaluation implementation)
