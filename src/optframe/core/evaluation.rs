@@ -14,15 +14,15 @@ impl<R: Real> XEvaluation<R> for Evaluation<R> {
     fn evaluation(&self) -> R {
         self.objVal
     }
-    fn setObjFunction(&mut self, objVal: R) -> () {
+    fn setObjFunction(&mut self, objVal: R) {
         self.objVal = objVal
     }
     // ======== variable 'outdated' ========
     fn isOutdated(&self) -> bool {
-        return self.outdated;
+        self.outdated
     }
     //
-    fn setOutdated(&mut self, outdated: bool) -> () {
+    fn setOutdated(&mut self, outdated: bool) {
         self.outdated = outdated;
     }
 }

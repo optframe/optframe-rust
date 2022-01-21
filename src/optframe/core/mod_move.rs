@@ -23,11 +23,11 @@ where
     //
     fn canBeApplied(&self, _se: &XES) -> bool {
         // default: all can be applied
-        return true;
+        true
     }
     //
     fn applyUpdate(&self, se: &mut XES) -> Box<dyn Move<XS, XEv, XES>> {
-        let e: &mut XEv = &mut se.second_mut();
+        let e: &mut XEv = se.second_mut();
         // ====== from OptFrame (C++) ======
         // boolean 'outdated' indicates that Evaluation needs update (after Solution change)
         // note that even if the reverse move is applied, the Evaluation will continue with
@@ -35,16 +35,16 @@ where
         // method, or use  efficient re-evaluation by means of the 'cost' method.
         e.setOutdated(true);
         // apply the move to R and ADS, saving the reverse (or undo) move
-        let rev = self.apply(se); // Box<dyn Move<XS, XEv, XES>>
-                                  // update neighborhood local optimum status TODO:deprecated
-                                  //updateNeighStatus(se);
+        // Box<dyn Move<XS, XEv, XES>>
+        // update neighborhood local optimum status TODO:deprecated
+        //updateNeighStatus(se);
 
         // return reverse move (or null)
-        return rev;
+        self.apply(se)
     }
     //
     fn cost(&self, _se: &XES, _allowEstimated: bool) -> Option<XEv> {
-        return None;
+        None
     }
 
     // ======= from Component =======

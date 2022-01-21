@@ -17,6 +17,6 @@ where
     F: Fn() -> XS,
 {
     fn generateSolution(&self) -> XS {
-        return (self.func)();
+        (self.func)()
     }
 }

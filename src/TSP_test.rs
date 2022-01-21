@@ -99,16 +99,16 @@ impl Move<Vec<i32>, Evaluation, ESolutionTSP> for MoveSwap {
         se.first_mut()[self.i] = aux;
 
         // reverse move
-        let mv = Box::new(MoveSwap {
+
+        Box::new(MoveSwap {
             pTSP: self.pTSP.clone(),
             i: self.j,
             j: self.i,
-        });
-        return mv;
+        })
     }
 
     fn canBeApplied(&self, _se: &ESolutionTSP) -> bool {
-        return (i32::abs((self.i - self.j) as i32) >= 2) && (self.i >= 1) && (self.j >= 1);
+        (i32::abs((self.i - self.j) as i32) >= 2) && (self.i >= 1) && (self.j >= 1)
     }
     //
 
@@ -140,7 +140,7 @@ impl Move<Vec<i32>, Evaluation, ESolutionTSP> for MoveSwap {
         let newObjVal = se.second().evaluation() + diff;
         se.second_mut().setObjFunction(newObjVal);
         //se.second().setObjFunction(se.second().evaluation() + diff);
-        return rev;
+        rev
     }
     //
 
@@ -164,15 +164,14 @@ impl Move<Vec<i32>, Evaluation, ESolutionTSP> for MoveSwap {
             + pTSP.dist[[s[j - 1] as usize, s[i] as usize]]
             + pTSP.dist[[s[i] as usize, s[(j + 1) % pTSP.n] as usize]]) as f64;
         //
-        return Some(Evaluation {
+        Some(Evaluation {
             objVal: diff,
             outdated: false,
-        });
+        })
     }
 
     fn toString(&self) -> String {
-        let str = format!("MoveSwap i={} j={}", self.i, self.j);
-        return str;
+        format!("MoveSwap i={} j={}", self.i, self.j)
     }
 }
 
@@ -187,16 +186,13 @@ impl fmt::Display for MoveSwap {
 // (not necessary, but part of OptFrame Quickstart tutorial)
 // ------------------------
 
+#[allow(dead_code)]
 fn makeMoveSwap(
     pTSP: Rc<TSPProblemContext>,
     i: usize,
     j: usize,
 ) -> Box<dyn Move<Vec<i32>, Evaluation, ESolutionTSP>> {
-    return Box::new(MoveSwap {
-        pTSP: pTSP.clone(),
-        i,
-        j,
-    });
+    Box::new(MoveSwap { pTSP, i, j })
 }
 
 // ------------------------
@@ -221,7 +217,7 @@ FNS<ESolutionTSP> nsswap{
    fRandomSwap
 };
 */
-
+#[test]
 fn main() {
     println!("Welcome to OptFrame Project (Rust version) - github.com/optframe");
 
@@ -256,17 +252,17 @@ fn main() {
             let mut i: usize = 0;
             while i < _n {
                 v[i] = i as i32;
-                i = i + 1;
+                i += 1;
             }
             v.shuffle(&mut thread_rng());
-            return v;
+            v
         },
     };
 
     let sol = fc.generateSolution();
 
-    print!("solution: {:?}\n", sol);
-    print!("distances:\n {:?}\n", pTSP.dist);
+    println!("solution: {:?}", sol);
+    println!("distances:\n {:?}", pTSP.dist);
 
     let fev = FEvaluator {
         fEvaluate: |s: &Vec<i32>| -> Evaluation {
@@ -274,13 +270,13 @@ fn main() {
             let mut i: usize = 0;
             while i < (pTSP.n - 1) {
                 f += pTSP.dist[[s[i] as usize, s[i + 1] as usize]] as f64;
-                i = i + 1;
+                i += 1;
             }
             f += pTSP.dist[[s[pTSP.n - 1] as usize, s[0] as usize]] as f64;
-            return Evaluation {
+            Evaluation {
                 objVal: f,
                 outdated: false,
-            };
+            }
         },
         phantomXS: PhantomData,
         phantomXEv: PhantomData,
@@ -288,7 +284,7 @@ fn main() {
 
     let ev = fev.evaluate(&sol);
 
-    print!("evaluation: {:?}\n", ev.evaluation());
+    println!("evaluation: {:?}", ev.evaluation());
 
     // ======================
     // tests with moves
@@ -302,7 +298,7 @@ fn main() {
         j: 1,
     };
 
-    print!("mv1: {}\n", mv1);
+    println!("mv1: {}", mv1);
 
     let mut esol = ESolutionTSP {
         first_value: sol,
@@ -311,7 +307,7 @@ fn main() {
 
     let mv2 = mv1.apply(&mut esol);
 
-    print!("mv2: {}\n", mv2.toString());
+    println!("mv2: {}", mv2.toString());
 
     let _mv3 = mv2.apply(&mut esol);
 

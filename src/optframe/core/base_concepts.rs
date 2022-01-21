@@ -15,10 +15,10 @@ pub trait XSolution {}
 
 pub trait XEvaluation<R: Real = f64> {
     fn evaluation(&self) -> R;
-    fn setObjFunction(&mut self, objVal: R) -> ();
+    fn setObjFunction(&mut self, objVal: R);
     // variable 'outdated'
     fn isOutdated(&self) -> bool;
-    fn setOutdated(&mut self, outdated: bool) -> ();
+    fn setOutdated(&mut self, outdated: bool);
 }
 
 pub trait XESolution<XS: XSolution, XEv: XEvaluation> {

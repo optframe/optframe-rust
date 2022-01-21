@@ -27,7 +27,7 @@ where
     F: Fn(&XS) -> XEv,
 {
     fn evaluate(&self, s: &XS) -> XEv {
-        return (self.fEvaluate)(s);
+        (self.fEvaluate)(s)
     }
 }
 
