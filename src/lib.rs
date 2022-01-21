@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![doc = include_str!("../README.md")]
 
 mod optfcore;
 mod optframe;
