@@ -1,34 +1,16 @@
-#![allow(non_snake_case)]
+use std::{fmt, marker::PhantomData, rc::Rc};
 
-mod optfcore;
-mod optframe;
+use ndarray::Array2;
+use rand::{prelude::SliceRandom, thread_rng};
 
-use optfcore::fconstructive::FConstructive;
-use optfcore::fevaluator::FEvaluator;
-use optframe::core::base_concepts::{XESolution, XSolution};
-use optframe::core::evaluation::Evaluation;
-
-use crate::optframe::core::constructive::Constructive;
-use crate::optframe::core::evaluator::Evaluator;
-use crate::optframe::core::mod_move::Move;
-
-use crate::optframe::core::base_concepts::XEvaluation;
-
-// reference counted (for Problem Context)
-use std::rc::Rc;
-
-// formatter (operator<< on Display)
-use std::fmt;
-
-//use rand::Rng;
-use rand::seq::SliceRandom;
-use rand::thread_rng;
-
-use std::marker::PhantomData;
-
-// ------------------------
-// begin real code
-// ------------------------
+use crate::{
+    core::{
+        evaluation::{XESolution, XEvaluation, XSolution},
+        mod_move::Move,
+        Constructive, Evaluation, Evaluator,
+    },
+    FConstructive, FEvaluator,
+};
 
 pub struct ESolutionTSP {
     pub first_value: Vec<i32>,
@@ -55,8 +37,6 @@ impl XESolution<Vec<i32>, Evaluation> for ESolutionTSP {
 }
 
 // ------------------------
-
-use ndarray::Array2;
 
 // TSP problem context and data reads
 pub struct TSPProblemContext {
