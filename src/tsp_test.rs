@@ -9,10 +9,29 @@ use crate::{
         mod_move::Move,
         Constructive, Evaluation, Evaluator,
     },
-    FConstructive, FEvaluator, FNS,
+    FConstructive,
+    FEvaluator,
+    //FxNSIterator,
+    FNS,
 };
 
+//use crate::optfcore::fxnsseq::FxNSIteratorCoro;
+use crate::optfcore::fxnsseq::FxNSIterator;
+use crate::optfcore::fxnsseq::FxNSIteratorCoro;
+use crate::optfcore::fxnsseq::GeneratorFuncNSIteratorAdapter;
+use crate::optfcore::fxnsseq::GeneratorIteratorAdapter;
+use crate::optfcore::fxnsseq::GeneratorNSIteratorAdapter;
 use crate::optframe::core::ns::NS;
+use crate::optframe::core::nsseq::NSIterator;
+
+// -------
+
+use std::{
+    ops::{Generator, GeneratorState},
+    pin::Pin,
+};
+
+// -------
 
 // =======================================
 
@@ -222,6 +241,171 @@ FNS<ESolutionTSP> nsswap{
    fRandomSwap
 };
 */
+
+// ---------------
+// https://stackoverflow.com/questions/16421033/lazy-sequence-generation-in-rust/30279122#30279122
+
+struct GeneratorIteratorAdapter1<G>(Pin<Box<G>>);
+
+impl<G> GeneratorIteratorAdapter1<G>
+where
+    G: Generator<Return = ()>,
+{
+    fn new(gen: G) -> Self {
+        Self(Box::pin(gen))
+    }
+}
+
+impl<G> Iterator for GeneratorIteratorAdapter1<G>
+where
+    G: Generator<Return = ()>,
+{
+    type Item = G::Yield;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.0.as_mut().resume(()) {
+            GeneratorState::Yielded(x) => Some(x),
+            GeneratorState::Complete(_) => None,
+        }
+    }
+}
+// ---------------
+
+/*
+impl FxNSIteratorCoro<ESolutionTSP, TSPProblemContext> for FxNSIterator<ESolutionTSP> {
+    fn compute_generator<G: Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()>>(
+        se: &ESolutionTSP,
+        problem: Rc<TSPProblemContext>,
+    ) -> Box<GeneratorIteratorAdapter<G>> {
+        //
+        pub fn firstn_moves_se(
+            _se: &ESolutionTSP,
+            my_p_tsp: Rc<TSPProblemContext>,
+        ) -> impl Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()> + '_ {
+            move || {
+                let mut n = _se.first().len();
+                let mut num = 0;
+                while num < n {
+                    let val: usize = num as usize;
+                    let cop: Rc<TSPProblemContext> = my_p_tsp.clone();
+                    let mv: Box<dyn Move<ESolutionTSP>> = make_move_swap(cop, val, val);
+                    yield mv;
+                    num += 1;
+                }
+            }
+        }
+
+        for i in GeneratorIteratorAdapter::new(firstn_moves_se(se, problem)) {
+            println!("i={}\n", i.to_string());
+        }
+
+        Box::new(GeneratorIteratorAdapter::new(firstn_moves_se(se, problem)))
+        //return firstn_moves_se(se, problem);
+    }
+}
+*/
+
+// ===============
+
+struct Foo {
+    pub foo: Box<dyn Fn(Rc<TSPProblemContext>) -> usize>,
+}
+
+impl Foo {
+    fn new(foo: impl Fn(Rc<TSPProblemContext>) -> usize + 'static) -> Self {
+        Self { foo: Box::new(foo) }
+    }
+}
+
+struct FooTest {
+    pub pin: Option<Pin<Box<dyn Generator<Yield = u64, Return = ()>>>>,
+}
+
+impl FooTest {
+    pub fn new() -> Self {
+        Self { pin: None }
+    }
+
+    pub fn first(&mut self, k: u64) -> () {
+        let mut gen_test = || {
+            yield 1;
+        };
+
+        fn firstn_moves(n: u64) -> impl Generator<Yield = u64, Return = ()> {
+            move || {
+                let mut m = 0;
+                while m < n {
+                    yield m;
+                    m = m + 1;
+                }
+            }
+        }
+        //
+
+        self.pin = Some(Box::pin(firstn_moves(k)));
+    }
+}
+
+// ==================
+
+impl FxNSIteratorCoro<ESolutionTSP> for FxNSIterator<ESolutionTSP> {
+    //
+    //pub pin: Option<Pin<Box<dyn Generator<Yield = u64, Return = ()>>>>,
+    //
+    fn setup_coro(&mut self) -> () {
+        //
+        fn firstn_moves_x(
+            n: u64,
+        ) -> impl Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()> {
+            move || {
+                //
+                let rc_tsp: Rc<TSPProblemContext> = Rc::new(TSPProblemContext {
+                    n: 5,
+                    dist: Array2::<i32>::ones((5, 5)),
+                });
+                let mut num = 0;
+                while num < n {
+                    let val: usize = num as usize;
+                    let mv: Box<dyn Move<ESolutionTSP>> = make_move_swap(rc_tsp.clone(), val, val);
+                    yield mv;
+                    num += 1;
+                }
+            }
+        }
+        //
+        let k = 5;
+        self.pin = Some(Box::pin(firstn_moves_x(k)));
+    }
+    //
+    fn get_coro(
+        &mut self,
+    ) -> &mut Option<Pin<Box<dyn Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()>>>>
+    {
+        &mut self.pin
+    }
+    //
+    fn set_move(&mut self, mv: Option<Box<dyn Move<ESolutionTSP>>>) {
+        self.mv = mv;
+    }
+    // get move object and move it out
+    fn get_move_mv(&mut self) -> Option<Box<dyn Move<ESolutionTSP>>> {
+        //
+        // https://stackoverflow.com/questions/52031002/how-do-i-move-out-of-a-struct-field-that-is-an-option
+        // TODO: check if mem::replace is the only way
+        //
+        let mv2 = std::mem::replace(&mut self.mv, None);
+
+        mv2
+    }
+    //
+    fn get_move_ref(&mut self) -> &Option<Box<dyn Move<ESolutionTSP>>> {
+        &self.mv
+    }
+    //}
+}
+
+// ==================
+
 #[test]
 fn main() {
     println!("Welcome to OptFrame Project (Rust version) - github.com/optframe");
@@ -235,19 +419,38 @@ fn main() {
         dist: Array2::<i32>::ones((5, 5)), //dist: [[0 as i32; 5].to_vec() ; 5].to_vec()
     };
 
-    //let mut v1 : Vec<i32> = Vec::new();
+    let rc_tsp: Rc<TSPProblemContext> = Rc::new(TSPProblemContext {
+        n: 5,
+        dist: Array2::<i32>::ones((5, 5)), //dist: [[0 as i32; 5].to_vec() ; 5].to_vec()
+    });
+    // ==================
 
-    /*
-    let frandom : fn()->Vec<i32> = || -> Vec<i32> {
-    //let frandom : dyn Fn()->Vec<i32> = || -> Vec<i32> {
-        let _n : usize = _pTSP.n;
-        //let v : Vec<i32> = Vec::new();
-        let v : Vec<i32> = vec![0; _n];
-        return v
+    let foo = Foo {
+        foo: Box::new(|prob| prob.n + 1),
     };
-    */
+    (foo.foo)(rc_tsp.clone()); // do not move 'rc_tsp'
 
-    //let fc = FConstructive{func : frandom};
+    (Foo::new(|prob| prob.n + 1).foo)(rc_tsp.clone());
+
+    let mut foo_test = FooTest::new();
+
+    foo_test.first(5);
+
+    // ----------
+
+    let mut gen_test = || {
+        yield 1;
+    };
+
+    //let bx_gen_test: Box<dyn Fn(Rc<TSPProblemContext>) -> _> = Box::new(gen_test);
+
+    //let foo2 = FooGen {
+    //    foo: Box::new(|prob| yield 1),
+    //};
+    //
+    //(foo.foo)(rc_tsp.clone()); // do not move 'rc_tsp'
+
+    // =============================================
 
     let fc = FConstructive {
         func: || -> Vec<i32> {
@@ -269,6 +472,8 @@ fn main() {
     println!("solution: {:?}", sol);
     println!("distances:\n {:?}", p_tsp.dist);
 
+    // =============================================
+
     let fev = FEvaluator {
         f_evaluate: |s: &Vec<i32>| -> Evaluation {
             let mut f: f64 = 0.0;
@@ -283,7 +488,6 @@ fn main() {
                 outdated: false,
             }
         },
-        //phantom_xes: PhantomData,
         phantom_xs: PhantomData,
         phantom_xev: PhantomData,
     };
@@ -291,6 +495,17 @@ fn main() {
     let ev: Evaluation = fev.evaluate(&sol);
 
     println!("evaluation: {:?}", ev.evaluation());
+
+    // =============================================
+
+    let mut esol = ESolutionTSP {
+        first_value: sol,
+        second_value: ev,
+    };
+
+    println!("evaluation: {:?}", esol.second().evaluation());
+
+    // =============================================
 
     // ======================
     // tests with moves
@@ -306,18 +521,13 @@ fn main() {
 
     println!("mv1: {}", mv1);
 
-    let mut esol = ESolutionTSP {
-        first_value: sol,
-        second_value: ev,
-    };
-
     let mv2 = mv1.apply(&mut esol);
 
     println!("mv2: {}", mv2.to_string());
 
     let _mv3 = mv2.apply(&mut esol);
 
-    //print!("mv2: {}\n", *mv2);
+    // =============================================
 
     let fns_swap = FNS {
         f_random: |_se: &ESolutionTSP| -> Box<dyn Move<ESolutionTSP>> {
@@ -333,7 +543,196 @@ fn main() {
         phantom_xes: PhantomData,
     };
 
-    let _mv4 = fns_swap.random_move(&esol);
+    let mv4 = fns_swap.random_move(&esol);
+    println!("mv4: {}", mv4.to_string());
+
+    // =============================================
+
+    fn firstn(n: u64) -> impl Generator<Yield = u64, Return = ()> {
+        move || {
+            let mut num = 0;
+            while num < n {
+                yield num;
+                num += 1;
+            }
+        }
+    }
+
+    for i in GeneratorIteratorAdapter1::new(firstn(10)) {
+        println!("i={}\n", i);
+    }
+
+    // =============================================
+
+    fn firstn_moves(
+        n: u64,
+        my_p_tsp1: Rc<TSPProblemContext>,
+    ) -> impl Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()> {
+        move || {
+            let mut num = 0;
+            while num < n {
+                let val: usize = num as usize;
+                let mv: Box<dyn Move<ESolutionTSP>> = make_move_swap(my_p_tsp1.clone(), val, val);
+                yield mv;
+                num += 1;
+            }
+        }
+    }
+
+    for i in GeneratorIteratorAdapter1::new(firstn_moves(10, my_p_tsp.clone())) {
+        println!("i={}\n", i.to_string());
+    }
+
+    let mut g = GeneratorIteratorAdapter1::new(firstn_moves(10, my_p_tsp.clone()));
+    let mut x = g.next();
+    while !x.is_none() {
+        match x {
+            Some(y) => println!("Result: {}", y.to_string()),
+            None => {}
+        }
+        x = g.next();
+    }
+
+    // =====================================
+    println!("testing GeneratorNSIterator");
+
+    let mut g1 = GeneratorNSIteratorAdapter::new(firstn_moves(10, my_p_tsp.clone()), &esol);
+    //
+    g1.first();
+    while !g1.is_done() {
+        match g1.current() {
+            Some(y) => println!("Result NSIterator: {}", y.to_string()),
+            None => {}
+        }
+        g1.next();
+    }
+
+    // =============
+
+    let mut ns_it_coro: FxNSIterator<ESolutionTSP> = FxNSIterator::new();
+    println!("TESTING ns_it_coro\n");
+    ns_it_coro.first();
+    while !ns_it_coro.is_done() {
+        let mv = ns_it_coro.current();
+        match mv {
+            Some(x) => {
+                println!("mv = {}\n", x.to_string())
+            }
+            None => {}
+        }
+        ns_it_coro.next();
+    }
+
+    /*
+    fn firstn_moves_prob(
+        xes: ESolutionTSP,
+        //my_p_tsp1: Rc<TSPProblemContext>,
+    ) -> impl Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()> {
+        move || {
+            let my_p_tsp1: Rc<TSPProblemContext> = Rc::new(TSPProblemContext {
+                n: 5,
+                dist: Array2::<i32>::ones((5, 5)), //dist: [[0 as i32; 5].to_vec() ; 5].to_vec()
+            });
+            let mut num = 0;
+            let n = xes.first().len();
+            while num < n {
+                let val: usize = num as usize;
+                let mv: Box<dyn Move<ESolutionTSP>> = make_move_swap(my_p_tsp1.clone(), val, val);
+                yield mv;
+                num += 1;
+            }
+        }
+    }
+
+    let func2 = Box::new(firstn_moves_prob);
+
+    let mut g2 = GeneratorFuncNSIteratorAdapter::new(func2, &esol, my_p_tsp.clone());
+    */
+
+    /*
+    fn firstn_moves_se(
+        _se: &ESolutionTSP,
+    ) -> impl Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()> {
+        move || {
+            let mut n = _se.first().len();
+            let mut num = 0;
+            while num < n {
+                let val: usize = num as usize;
+                let mv: Box<dyn Move<ESolutionTSP>> = make_move_swap(my_p_tsp.clone(), val, val);
+                yield mv;
+                num += 1;
+            }
+        }
+    }
+    */
+
+    //type GenTSP = Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()>;
+    /*
+    fn firstn_closure(
+        _se: &ESolutionTSP,
+    ) -> impl Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()> {
+        move || {
+            let my_p_tsp1 = &my_p_tsp;
+            let mut n = _se.first().len();
+            let mut num = 0;
+            while num < n {
+                let val: usize = num as usize;
+                let mv: Box<dyn Move<ESolutionTSP>> = make_move_swap(my_p_tsp1.clone(), val, val);
+                yield mv;
+                num += 1;
+            }
+        }
+    }
+    */
+
+    /*
+    let firstn_closure_2: dyn Fn(
+        &ESolutionTSP,
+    )
+        -> impl Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()> = firstn_closure;
+
+    let fns_it = FxNSIterator {
+        fgen: Box::new(
+            |_se: &ESolutionTSP| -> impl Generator<Yield = Box<dyn Move<ESolutionTSP>>, Return = ()> {
+                move || {
+                    let my_p_tsp1 = &my_p_tsp;
+                    let mut n = _se.first().len();
+                    let mut num = 0;
+                    while num < n {
+                        let val: usize = num as usize;
+                        let mv: Box<dyn Move<ESolutionTSP>> =
+                            make_move_swap(my_p_tsp1.clone(), val, val);
+                        yield mv;
+                        num += 1;
+                    }
+                }
+            },
+        ),
+        consumed_current: false,
+        done: false,
+        phantom_xes: PhantomData,
+        phantom_gen: PhantomData,
+    };
+    */
+
+    //let mut nsit = FxNSIterator::new(firstn_moves(10, my_p_tsp.clone()));
+
+    /*
+    let fxnsiterator = FxNSIterator {
+        f_generator:
+            |_se: &ESolutionTSP| -> dyn Generator<Yield = Box<dyn Move<XES>>, Return = ()> {
+                let my_p_tsp1 = &my_p_tsp;
+                let mut i: usize = rand::random::<usize>() % my_p_tsp1.n;
+                let mut j = i;
+                while j <= i {
+                    i = rand::random::<usize>() % my_p_tsp1.n;
+                    j = rand::random::<usize>() % my_p_tsp1.n;
+                }
+                return make_move_swap(my_p_tsp1.clone(), i, j);
+            },
+        phantom_xes: PhantomData,
+    };
+    */
 
     //let f2 : dyn Fn()->Vec<i32> = frandom;
 

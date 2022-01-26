@@ -4,3 +4,4 @@ use super::optframe;
 pub mod fconstructive;
 pub mod fevaluator;
 pub mod fns;
+pub mod fxnsseq;
