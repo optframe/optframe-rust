@@ -30,6 +30,20 @@ The ideas of modern C++ and Rust regarding memory management are not so differen
 
 C++ still misses nice modularization. The advantage of Rust is quite clear regarding *shorter and cleaner* error messages, so as providing a *standard package manager* and *standard build system* (cargo).
 
+#### Core concepts from C++ to Rust
+
+One of the fundamental building blocks in OptFrame is Move abstraction.
+We use **type erasure** to provide multiple abstractions of Move, which in C++ is made with
+class/polymorphism (+`std::unique_ptr` for memory management) and in Rust with `Box<dyn Move<_>>`.
+
+Another fundamental aspect is the definition of XESolution with `Concepts` on C++20, which is done as `trait` on Rust. Most of the components are templated regarding to XESolution, which is basically the same on C++ and Rust.
+
+Finally, on C++ we use a lot of `sref` (via `nnshared` project), which is a "shared reference" (or more precisely, a not-null shared pointer). On Rust, we just use `Rc<_>`,
+that has same guarantees for reference counting and also prevents null.
+
+C++ References and Rust Borrowed References are intended for usage only on specific cases, 
+but more are being uncovered (and discovered) during development ;)
+
 ## Try OptFrame in Rust
 
 I guess it's just `cargo run`.
@@ -46,6 +60,7 @@ However, Major version is expected to be in sync with OptFrame Project C++.
 ### Progress and Timeline
 
 - 20/01/2022: first draft is released
+- 26/01/2022: first draft for NSSeq with Coroutines (FxCore)
 
 #### Missing features
 
