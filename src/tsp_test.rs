@@ -393,7 +393,10 @@ impl FxNSIteratorCoro<ESolutionTSP> for FxNSIterator<ESolutionTSP> {
         // https://stackoverflow.com/questions/52031002/how-do-i-move-out-of-a-struct-field-that-is-an-option
         // TODO: check if mem::replace is the only way
         //
-        let mv2 = std::mem::replace(&mut self.mv, None);
+        // let mv2 = std::mem::replace(&mut self.mv, None);
+        //
+        // Using Option::take
+        let mv2 = self.mv.take();
 
         mv2
     }
